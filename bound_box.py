@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Inkscape extension to create a bounding box around selection or page.
+Tested with Inkscape version 1.3.
 
 Copyright (C) 2024  Shrinivas Kulkarni (khemadeva@gmail.com)
 
@@ -19,7 +20,6 @@ You should have received a copy of the GNU General Public License along
 with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-Compatible with Inkscape version 1.3.
 """
 
 import inkex
