@@ -42,7 +42,7 @@ After installation, the extension can be accessed from the Inkscape menu under `
 - **Creating a Bounding Box for Selected Objects**:
 
   1. Select the objects in Inkscape.
-  2. Go to `Extensions > Render > Bounding Box`.
+  2. Go to `Extensions > Render > Add Bounding Box`.
   3. Choose `Selection` under Bounding Box Type, adjust other settings as needed, and click Apply.
 
 - **Creating a Bounding Box for the Entire Page**:
