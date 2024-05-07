@@ -5,10 +5,7 @@ This Inkscape extension allows users to create a bounding box around selected ob
 ## Installation
 
 1. **Download the Extension**: Download the files `bounding_box.inx` and `bounding_box.py` from this repository.
-2. **Install the Extension**: Copy these files into your Inkscape extensions directory. Typically, this directory is located at:
-   - **Linux**: `~/.config/inkscape/extensions/`
-   - **Windows**: `C:\Program Files\Inkscape\share\extensions\`
-   - **Mac OS**: `~/Library/Application Support/org.inkscape.Inkscape/config/inkscape/extensions/`
+2. **Install the Extension**: Copy these files into your Inkscape extensions directory. You will find this in the 'User Extensions' option under the System section at Edit-Preferences in Inkscape.
 3. **Restart Inkscape**: Close and reopen Inkscape to load the new extension.
 
 ## Features

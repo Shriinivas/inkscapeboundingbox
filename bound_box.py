@@ -64,7 +64,7 @@ class BoundingBoxEffect(inkex.Effect):
         )
         arg(
             "--grow",
-            type=float,
+            type=int,
             default=0,
             help="Grow or shrink the bounding box by percentage",
         )
