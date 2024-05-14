@@ -10,8 +10,8 @@
       </param>
       <param gui-description="Create bounding box in new layer" gui-text="Create new layer:" name="newlayer" type="bool">false</param>
       <param gui-description="Add/subtract percentage to/from box size (min=-99, max=1000)." gui-text="Grow / Shrink (%):" max="1000" min="-99" name="grow" type="int">0</param>
-      <param gui-description="Add horizontal bisector" gui-text="Horizontal Bisector:" name="horizbisector" type="bool">false</param>
-      <param gui-description="Add vertical bisector" gui-text="Vertical Bisector:" name="vertbisector" type="bool">false</param>
+      <param gui-description="Add horizontal guide" gui-text="Horizontal Guide:" name="horizguide" type="bool">false</param>
+      <param gui-description="Add vertical guide" gui-text="Vertical Guide:" name="vertguide" type="bool">false</param>
     </page>
     <page gui-text="Fill" name="fill_page">
       <param gui-text="Add fill" name="addfill" type="bool">true</param>
@@ -22,7 +22,7 @@
       <param gui-text="Stroke color" name="strokecolor" type="color">0x000000FF</param>
     </page>
     <page gui-text="Help" name="Help">
-      <label xml:space="preserve">Use this extension to create a bounding box around your selection or the entire page. You can adjust size, add bisectors, and customize fill and stroke properties.</label>
+      <label xml:space="preserve">Use this extension to create a bounding box around your selection or the entire page. You can adjust size, add guides, and customize fill and stroke properties.</label>
     </page>
   </param>
   <effect>

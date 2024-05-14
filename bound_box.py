@@ -45,16 +45,16 @@ class BoundingBoxEffect(inkex.Effect):
             help="Create new layer with bounding box",
         )
         arg(
-            "--horizbisector",
+            "--horizguide",
             type=inkex.Boolean,
             default=False,
-            help="Create horizontal bisector of bounding box",
+            help="Create horizontal guide of bounding box",
         )
         arg(
-            "--vertbisector",
+            "--vertguide",
             type=inkex.Boolean,
             default=False,
-            help="Create vertical bisector of bounding box",
+            help="Create vertical guide of bounding box",
         )
         arg(
             "--bboxtype",
@@ -364,12 +364,12 @@ class BoundingBoxEffect(inkex.Effect):
     def effect(self):
         """
         Main method executed by the Inkscape extension to add a bounding box around the selected objects or page.
-        This method also supports adding bisectors and growing/shrinking the bounding box based on user input.
+        This method also supports adding guides and growing/shrinking the bounding box based on user input.
         """
         # Fetch options
         newlayer = self.options.newlayer
-        horizbisector = self.options.horizbisector
-        vertbisector = self.options.vertbisector
+        horizguide = self.options.horizguide
+        vertguide = self.options.vertguide
         addfill = self.options.addfill
         addstroke = self.options.addstroke
         fillcolor = self.options.fillcolor
@@ -411,16 +411,13 @@ class BoundingBoxEffect(inkex.Effect):
         width += width_increase
         height += height_increase
 
-        # Draw bisectors if needed
-        bisect_color = strokecolor if addstroke else "#0000FF"
-        if vertbisector:
+        # Add Guides
+        if vertguide:
             xmid = x + (width / 2)
-            d = f"M {xmid},{y} V {height + y}"
-            self.add_path(layer, d, "Vertical Bisector", bisect_color)
-        if horizbisector:
+            svg.namedview.add_guide(xmid, False)
+        if horizguide:
             ymid = y + (height / 2)
-            d = f"M {x},{ymid} H {width + x}"
-            self.add_path(layer, d, "Horizontal Bisector", bisect_color)
+            svg.namedview.add_guide(ymid, True)
 
         # Draw the bounding box
         self.add_rect(
