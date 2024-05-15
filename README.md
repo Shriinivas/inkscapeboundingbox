@@ -1,6 +1,6 @@
 # Bounding Box Extension for Inkscape
 
-This Inkscape extension allows users to create a bounding box around selected objects or the entire page. The extension provides various options to customize the bounding box, including creating a new layer for bounding box, adjustments for size, addition of bisectors, and styling options for fill and stroke.
+This Inkscape extension allows users to create a bounding box around selected objects or the entire page. The extension provides various options to customize the bounding box, including creating a new layer for bounding box, adjustments for size, addition of guides, and styling options for fill and stroke.
 
 ## Installation
 
@@ -14,7 +14,7 @@ This extension provides the following features:
 
 - **Dynamic Bounding Box**: Create a bounding box that adjusts based on the selected objects or the entire page.
 - **Adjustable Size**: Increase or decrease the size of the bounding box.
-- **Bisectors**: Optionally add horizontal and/or vertical bisectors within the bounding box.
+- **Guides**: Optionally add horizontal and/or vertical guides from the center of the bounding box.
 - **Layer Options**: Choose to add the bounding box to a new layer or the current layer.
 - **Style Customization**: Specify fill and stroke colors for the bounding box.
 
@@ -27,8 +27,8 @@ After installation, the extension can be accessed from the Inkscape menu under `
 - **Bounding Box Type**: Choose to create the bounding box around the `Selection` or the entire `Page`.
 - **Grow/Shrink**: Enter a percentage to grow or shrink the bounding box relative to the selected objects or page.
 - **New Layer**: Check this option to create the bounding box in a new layer. If unchecked, the bounding box will be added to the current layer.
-- **Horizontal Bisector**: Add a horizontal bisector line across the middle of the bounding box.
-- **Vertical Bisector**: Add a vertical bisector line across the middle of the bounding box.
+- **Horizontal Guide**: Add a horizontal guide across the middle of the bounding box.
+- **Vertical Guide**: Add a vertical guide across the middle of the bounding box.
 - **Add Fill**: Enable or disable filling the bounding box with color.
 - **Fill Color**: Choose a color for the bounding box fill. This option is enabled only if `Add Fill` is checked.
 - **Add Stroke**: Enable or disable the stroke outline for the bounding box.
