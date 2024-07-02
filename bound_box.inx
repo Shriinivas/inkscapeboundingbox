@@ -4,11 +4,17 @@
   <id>org.khema.inkscape.extension.boundbox</id>
   <param name="tab" type="notebook">
     <page gui-text="Config" name="object">
-      <param appearance="combo" gui-description="Whether to draw box around selection or page" gui-text="Type:" name="bboxtype" type="optiongroup">
+      <param appearance="combo" gui-description="Whether to draw box around selection, individual elements or page" gui-text="Bounding Box Around:" name="bboxtype" type="optiongroup">
         <option value="selection">Selection</option>
+        <option value="elements">Elements</option>
         <option value="page">Page</option>
       </param>
-      <param gui-description="Create bounding box in new layer" gui-text="Create new layer:" name="newlayer" type="bool">false</param>
+      <param appearance="combo" gui-description="Where to add the bounding box" gui-text="Position:" name="position" type="optiongroup">
+        <option value="below_sel">Below Selection</option>
+        <option value="above_sel">Above Selection</option>
+        <option value="below_layer">New Layer (Below)</option>
+        <option value="above_layer">New Layer (Above)</option>
+      </param>
       <param gui-description="Add/subtract percentage to/from box size (min=-99, max=1000)." gui-text="Grow / Shrink (%):" max="1000" min="-99" name="grow" type="int">0</param>
       <param gui-description="Add horizontal guide" gui-text="Horizontal Guide:" name="horizguide" type="bool">false</param>
       <param gui-description="Add vertical guide" gui-text="Vertical Guide:" name="vertguide" type="bool">false</param>
@@ -22,7 +28,17 @@
       <param gui-text="Stroke color" name="strokecolor" type="color">0x000000FF</param>
     </page>
     <page gui-text="Help" name="Help">
-      <label xml:space="preserve">Use this extension to create a bounding box around your selection or the entire page. You can adjust size, add guides, and customize fill and stroke properties.</label>
+      <label xml:space="preserve">
+This extension creates a bounding box around your selection, individual elements within the selection, or the entire page.
+
+Options:
+- Bounding Box Around: Choose between Selection, Elements, or Page
+- Position: Select where to add the bounding box (below/above selection or in a new layer)
+- Grow / Shrink: Adjust the size of the bounding box
+- Guides: Add optional horizontal and/or vertical guides (based on entire selection or page)
+- Fill: Enable/disable fill and choose fill color
+- Stroke: Enable/disable stroke and choose stroke color
+      </label>
     </page>
   </param>
   <effect>
