@@ -5,8 +5,9 @@
   <param name="tab" type="notebook">
     <page gui-text="Config" name="object">
       <param appearance="combo" gui-description="Whether to draw box around selection, individual elements or page" gui-text="Bounding Box Around:" name="bboxtype" type="optiongroup">
-        <option value="selection">Selection</option>
-        <option value="elements">Elements</option>
+        <option value="selection">Entire Selection</option>
+        <option value="elements">Selected Elements</option>
+        <option value="objects">Individual Objects</option>
         <option value="page">Page</option>
       </param>
       <param appearance="combo" gui-description="Where to add the bounding box" gui-text="Position:" name="position" type="optiongroup">
@@ -32,7 +33,7 @@
 This extension creates a bounding box around your selection, individual elements within the selection, or the entire page.
 
 Options:
-- Bounding Box Around: Choose between Selection, Elements, or Page
+- Bounding Box Around: Choose between Entire Selection, Elements (e.g. groups) within Selection, Individual Objects, or Entire Page
 - Position: Select where to add the bounding box (below/above selection or in a new layer)
 - Grow / Shrink: Adjust the size of the bounding box
 - Guides: Add optional horizontal and/or vertical guides (based on entire selection or page)

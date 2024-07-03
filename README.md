@@ -26,7 +26,7 @@ After installation, the extension can be accessed from the Inkscape menu under `
 
 #### Config Tab:
 
-- **Bounding Box Around**: Choose to create the bounding box around the `Selection`, `Elements`, or the entire `Page`.
+- **Bounding Box Around**: Choose between Entire Selection, Elements (e.g. groups) within Selection, Individual Objects, or Entire Page.
 - **Position**: Select where to add the bounding box:
   - `Below Selection`
   - `Above Selection`

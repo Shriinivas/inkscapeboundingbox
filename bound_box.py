@@ -35,7 +35,6 @@ from inkex import (
     Page,
     Layer,
     Rectangle,
-    ShapeElement,
 )
 
 
@@ -202,6 +201,8 @@ class BoundingBoxEffect(Effect):
             bbox_info = [[elem, self.get_combined_bbox(elements)]]
 
         elif bboxtype == "elements":
+            bbox_info = self.get_sel_bbox_info(elements)
+        elif bboxtype == "objects":
             # Get all subclasses of ShapeElement (Can have some unforeseen effects)
             # shape_classes = [
             #     cls
@@ -222,10 +223,17 @@ class BoundingBoxEffect(Effect):
             bbox_info = [[None, self.get_page_bbox(elements)]]
         return bbox_info
 
-    def get_bbox_layer(self, position):
+    def get_parent_layer(self, elem):
+        parent = elem.getparent()
+        if parent is None or parent.get("inkscape:groupmode") == "layer":
+            return parent
+        return self.get_parent_layer(parent)
+
+    def get_bbox_layer(self, position, ref_elem):
         if position in {"below_layer", "above_layer"}:
             layer = Layer.new("Bounding Box Layer")
-            curr_layer = self.svg.get_current_layer()
+            # curr_layer = self.svg.get_current_layer()
+            curr_layer = self.get_parent_layer(ref_elem)
             if curr_layer is None or curr_layer == self.svg:
                 self.svg.add(layer)
             elif position == "below_layer":
@@ -308,7 +316,7 @@ class BoundingBoxEffect(Effect):
             errormsg("No selection for bounding box.")
             return
 
-        layer = self.get_bbox_layer(position)
+        layer = self.get_bbox_layer(position, elements[0])
 
         guide_x1, guide_y1, guide_x2, guide_y2 = self.add_bboxes(
             bbox_info, layer, position, grow, addfill, fillcolor, addstroke, strokecolor
