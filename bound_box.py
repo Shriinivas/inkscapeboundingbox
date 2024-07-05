@@ -82,6 +82,12 @@ class BoundingBoxEffect(Effect):
             default=0,
             help="Grow or shrink the bounding box by percentage",
         )
+        arg(
+            "--retain_transform",
+            type=Boolean,
+            default=False,
+            help="Bounding Box inherits selection transform",
+        )
 
         # Color options
         arg(
@@ -99,8 +105,14 @@ class BoundingBoxEffect(Effect):
         arg("--fillcolor", type=Color, help="Fill color for bounding box")
         arg("--strokecolor", type=Color, help="Stroke color for bounding box")
 
-    def get_sel_bbox_info_external(self, elements):
+    def get_sel_bbox_info_external(self, elements, retain_transform):
         element_ids = [elem.get_id() for elem in elements]
+        transforms = []
+
+        if retain_transform:
+            for elem in elements:
+                transforms.append(elem.transform)
+                elem.transform = -elem.getparent().composed_transform()
 
         tmp_path = write_svg(
             self.document, os.path.join(tempfile.gettempdir(), "__bbox_ext.svg")
@@ -122,28 +134,34 @@ class BoundingBoxEffect(Effect):
             return bbox_info
         finally:
             try:
+                for elem, transform in zip(elements, transforms):
+                    elem.transform = transform
                 os.remove(tmp_path)
+
             except Exception as e:
                 errormsg(f"Failed to delete temporary file: {tmp_path}\nError: {e}")
 
-    def get_sel_bbox_info(self, elements):
+    def get_sel_bbox_info(self, elements, retain_transform):
         if not elements:
             return None
         if any(isinstance(e, TextElement) for e in elements):
-            bbox_info = self.get_sel_bbox_info_external(elements)
+            bbox_info = self.get_sel_bbox_info_external(elements, retain_transform)
         else:
-            bbs = [
-                [e, e.bounding_box(e.getparent().composed_transform())]
-                for e in elements
-            ]
+            if retain_transform:
+                bbs = [[e, e.bounding_box(-e.transform)] for e in elements]
+            else:
+                bbs = [
+                    [e, e.bounding_box(e.getparent().composed_transform())]
+                    for e in elements
+                ]
             bbox_info = [
                 [bb[0], [bb[1].left, bb[1].top, bb[1].right, bb[1].bottom]]
                 for bb in bbs
             ]
         return bbox_info
 
-    def get_combined_bbox(self, elements):
-        bbox_info = self.get_sel_bbox_info(elements)
+    def get_combined_bbox(self, elements, retain_transform):
+        bbox_info = self.get_sel_bbox_info(elements, retain_transform)
         if not bbox_info:
             return None
         min_x, min_y = (min(b[1][i] for b in bbox_info) for i in range(2))
@@ -194,14 +212,14 @@ class BoundingBoxEffect(Effect):
         rect.label = label
         return rect
 
-    def get_bbox_info(self, elements, bboxtype, position):
+    def get_bbox_info(self, elements, bboxtype, position, retain_transform):
         # Determine bounding box based on user selection
         if bboxtype == "selection":
             elem = elements[-1] if position == "above_sel" else elements[0]
-            bbox_info = [[elem, self.get_combined_bbox(elements)]]
+            bbox_info = [[elem, self.get_combined_bbox(elements, retain_transform)]]
 
         elif bboxtype == "elements":
-            bbox_info = self.get_sel_bbox_info(elements)
+            bbox_info = self.get_sel_bbox_info(elements, retain_transform)
         elif bboxtype == "objects":
             # Get all subclasses of ShapeElement (Can have some unforeseen effects)
             # shape_classes = [
@@ -218,7 +236,9 @@ class BoundingBoxEffect(Effect):
                 inkex.Circle,
                 inkex.Polygon,
             }
-            bbox_info = self.get_sel_bbox_info(elements.get(*shape_classes))
+            bbox_info = self.get_sel_bbox_info(
+                elements.get(*shape_classes), retain_transform
+            )
         else:
             bbox_info = [[None, self.get_page_bbox(elements)]]
         return bbox_info
@@ -255,6 +275,7 @@ class BoundingBoxEffect(Effect):
         fillcolor,
         addstroke,
         strokecolor,
+        retain_transform,
     ):
         guide_x1 = guide_y1 = float("inf")
         guide_x2 = guide_y2 = float("-inf")
@@ -290,12 +311,21 @@ class BoundingBoxEffect(Effect):
             else:
                 parent = layer
                 layer.add(rect)
-            rect.transform = -parent.composed_transform()
+            if retain_transform:
+                rect.transform = (
+                    elem.transform
+                    @ -parent.composed_transform()
+                    @ elem.getparent().composed_transform()
+                )
+            else:
+                rect.transform = -parent.composed_transform()
 
-            guide_x1 = min(guide_x1, x1)
-            guide_y1 = min(guide_y1, y1)
-            guide_x2 = max(guide_x2, x2)
-            guide_y2 = max(guide_y2, y2)
+            abs_bb = rect.bounding_box(parent.composed_transform())
+            if abs_bb:
+                guide_x1 = min(guide_x1, abs_bb.left)
+                guide_y1 = min(guide_y1, abs_bb.top)
+                guide_x2 = max(guide_x2, abs_bb.right)
+                guide_y2 = max(guide_y2, abs_bb.bottom)
         return guide_x1, guide_y1, guide_x2, guide_y2
 
     def effect(self):
@@ -308,9 +338,10 @@ class BoundingBoxEffect(Effect):
         strokecolor = self.options.strokecolor
         bboxtype = self.options.bboxtype
         grow = self.options.grow
+        retain_transform = self.options.retain_transform
 
         elements = self.svg.selected.rendering_order()
-        bbox_info = self.get_bbox_info(elements, bboxtype, position)
+        bbox_info = self.get_bbox_info(elements, bboxtype, position, retain_transform)
 
         if not bbox_info:
             errormsg("No selection for bounding box.")
@@ -319,7 +350,15 @@ class BoundingBoxEffect(Effect):
         layer = self.get_bbox_layer(position, elements[0])
 
         guide_x1, guide_y1, guide_x2, guide_y2 = self.add_bboxes(
-            bbox_info, layer, position, grow, addfill, fillcolor, addstroke, strokecolor
+            bbox_info,
+            layer,
+            position,
+            grow,
+            addfill,
+            fillcolor,
+            addstroke,
+            strokecolor,
+            retain_transform,
         )
         # Add Guides
         if vertguide:

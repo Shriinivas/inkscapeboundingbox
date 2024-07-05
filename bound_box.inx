@@ -17,6 +17,7 @@
         <option value="above_layer">New Layer (Above)</option>
       </param>
       <param gui-description="Add/subtract percentage to/from box size (min=-99, max=1000)." gui-text="Grow / Shrink (%):" max="1000" min="-99" name="grow" type="int">0</param>
+      <param gui-description="Transform Bounding Box as per selection" gui-text="Retain Transform:" name="retain_transform" type="bool">false</param>
       <param gui-description="Add horizontal guide" gui-text="Horizontal Guide:" name="horizguide" type="bool">false</param>
       <param gui-description="Add vertical guide" gui-text="Vertical Guide:" name="vertguide" type="bool">false</param>
     </page>
@@ -36,6 +37,7 @@ Options:
 - Bounding Box Around: Choose between Entire Selection, Elements (e.g. groups) within Selection, Individual Objects, or Entire Page
 - Position: Select where to add the bounding box (below/above selection or in a new layer)
 - Grow / Shrink: Adjust the size of the bounding box
+- Retain Transform: Bounding Box inherits the transform of the selection (applicable for element and object bounding boxes)
 - Guides: Add optional horizontal and/or vertical guides (based on entire selection or page)
 - Fill: Enable/disable fill and choose fill color
 - Stroke: Enable/disable stroke and choose stroke color

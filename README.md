@@ -15,6 +15,7 @@ This extension provides the following features:
 - **Dynamic Bounding Box**: Create a bounding box that adjusts based on the selected objects, individual elements, or the entire page.
 - **Positioning Options**: Choose where to add the bounding box relative to the selection or in a new layer.
 - **Adjustable Size**: Increase or decrease the size of the bounding box.
+- Retain Transform: For element and object bounding boxes, the bounding box can transform as per the selection
 - **Guides**: Optionally add horizontal and/or vertical guides from the center of the bounding box.
 - **Style Customization**: Specify fill and stroke colors for the bounding box.
 
@@ -33,6 +34,7 @@ After installation, the extension can be accessed from the Inkscape menu under `
   - `New Layer (Below)`
   - `New Layer (Above)`
 - **Grow / Shrink (%)**: Enter a percentage to grow or shrink the bounding box
+- Retain Transform: Bounding Box inherits the transform of the selection (applicable for element and object bounding boxes)
 - **Horizontal Guide**: Add a horizontal guide across the middle of the bounding box.
 - **Vertical Guide**: Add a vertical guide across the middle of the bounding box.
 
