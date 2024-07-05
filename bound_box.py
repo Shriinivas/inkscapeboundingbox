@@ -197,7 +197,8 @@ class BoundingBoxEffect(Effect):
         else:
             x = y = 0
             width, height = (
-                self.svg.unittouu(dim) for dim in (self.svg.width, self.svg.height)
+                self.svg.unittouu(dim)
+                for dim in (self.svg.viewport_width, self.svg.viewport_height)
             )
         return x, y, x + width, y + height
 
@@ -338,7 +339,10 @@ class BoundingBoxEffect(Effect):
         strokecolor = self.options.strokecolor
         bboxtype = self.options.bboxtype
         grow = self.options.grow
-        retain_transform = self.options.retain_transform
+        retain_transform = self.options.retain_transform and bboxtype not in {
+            "page",
+            "selection",
+        }
 
         elements = self.svg.selected.rendering_order()
         bbox_info = self.get_bbox_info(elements, bboxtype, position, retain_transform)
