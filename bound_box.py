@@ -253,8 +253,11 @@ class BoundingBoxEffect(Effect):
     def get_bbox_layer(self, position, ref_elem):
         if position in {"below_layer", "above_layer"}:
             layer = Layer.new("Bounding Box Layer")
-            # curr_layer = self.svg.get_current_layer()
-            curr_layer = self.get_parent_layer(ref_elem)
+            curr_layer = (
+                self.get_parent_layer(ref_elem)
+                if ref_elem
+                else self.svg.get_current_layer()
+            )
             if curr_layer is None or curr_layer == self.svg:
                 self.svg.add(layer)
             elif position == "below_layer":
@@ -351,7 +354,7 @@ class BoundingBoxEffect(Effect):
             errormsg("No selection for bounding box.")
             return
 
-        layer = self.get_bbox_layer(position, elements[0])
+        layer = self.get_bbox_layer(position, elements[0] if elements else None)
 
         guide_x1, guide_y1, guide_x2, guide_y2 = self.add_bboxes(
             bbox_info,
