@@ -255,7 +255,7 @@ class BoundingBoxEffect(Effect):
             layer = Layer.new("Bounding Box Layer")
             curr_layer = (
                 self.get_parent_layer(ref_elem)
-                if ref_elem
+                if ref_elem is not None
                 else self.svg.get_current_layer()
             )
             if curr_layer is None or curr_layer == self.svg:
