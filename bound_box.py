@@ -317,9 +317,9 @@ class BoundingBoxEffect(Effect):
                 layer.add(rect)
             if retain_transform:
                 rect.transform = (
-                    elem.transform
-                    @ -parent.composed_transform()
+                    -parent.composed_transform()
                     @ elem.getparent().composed_transform()
+                    @ elem.transform
                 )
             else:
                 rect.transform = -parent.composed_transform()
