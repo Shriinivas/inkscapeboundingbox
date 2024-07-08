@@ -324,6 +324,10 @@ class BoundingBoxEffect(Effect):
             else:
                 rect.transform = -parent.composed_transform()
 
+            tr = rect.composed_transform()
+            stroke_width = abs(tr.a * tr.d - tr.b * tr.c) ** -0.5
+            rect.style["stroke-width"] = str(f"{stroke_width:.2f}")
+
             abs_bb = rect.bounding_box(parent.composed_transform())
             if abs_bb:
                 guide_x1 = min(guide_x1, abs_bb.left)
