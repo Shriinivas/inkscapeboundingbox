@@ -1,6 +1,6 @@
 # Bounding Box Extension for Inkscape
 
-https://github.com/Shriinivas/etc/raw/master/inkscapeboundingbox/illustrations/inkboundbox.mp4
+[Demo](https://github.com/Shriinivas/inkscapeboundingbox/assets/42069100/61aa97e7-df91-4647-9ce5-b3a34bb7e94a)
 
 This Inkscape extension allows users to create a bounding box around selected objects, individual elements within the selection, or the entire page. The extension provides various options to customize the bounding box, including positioning, size adjustments, addition of guides, and styling options for fill and stroke.
 
