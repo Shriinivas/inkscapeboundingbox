@@ -16,7 +16,11 @@
         <option value="below_layer">New Layer (Below)</option>
         <option value="above_layer">New Layer (Above)</option>
       </param>
-      <param gui-description="Add/subtract percentage to/from box size (min=-99, max=1000)." gui-text="Grow / Shrink (%):" max="1000" min="-99" name="grow" type="int">0</param>
+      <param gui-description="Add/subtract value (or percentage) to/from box size." gui-text="Resize:" max="9999" min="-9999" name="grow" type="int">0</param>
+      <param appearance="combo" gui-description="How to interpret Resize value" gui-text="Resize Type:" name="grow_type" type="optiongroup">
+        <option value="absolute">Absolute</option>
+        <option value="relative">Relative</option>
+      </param>
       <param gui-description="Transform Bounding Box as per selection" gui-text="Retain Transform:" name="retain_transform" type="bool">false</param>
       <param gui-description="Add horizontal guide" gui-text="Horizontal Guide:" name="horizguide" type="bool">false</param>
       <param gui-description="Add vertical guide" gui-text="Vertical Guide:" name="vertguide" type="bool">false</param>
@@ -36,7 +40,8 @@ This extension creates a bounding box around your selection, individual elements
 Options:
 - Bounding Box Around: Choose between Entire Selection, Elements (e.g. groups) within Selection, Individual Objects, or Entire Page
 - Position: Select where to add the bounding box (below/above selection or in a new layer)
-- Grow / Shrink: Adjust the size of the bounding box
+- Resize: Adjust the size of the bounding box
+- Resize Type: If `Absolute` box is extended by as many pixels as `Resize`, otherwise `Resize` is considered to be a percentage value
 - Retain Transform: Bounding Box inherits the transform of the selection (applicable for element and object bounding boxes)
 - Guides: Add optional horizontal and/or vertical guides (based on entire selection or page)
 - Fill: Enable/disable fill and choose fill color

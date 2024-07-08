@@ -77,10 +77,15 @@ class BoundingBoxEffect(Effect):
             help="Where to add the bounding box",
         )
         arg(
+            "--grow_type",
+            default="relative",
+            help="How to interpret Grow / Shrink value",
+        )
+        arg(
             "--grow",
             type=int,
             default=0,
-            help="Grow or shrink the bounding box by percentage",
+            help="Add/subtract value (or percentage) to/from box size",
         )
         arg(
             "--retain_transform",
@@ -202,14 +207,18 @@ class BoundingBoxEffect(Effect):
             )
         return x, y, x + width, y + height
 
-    def add_rect(self, x, y, width, height, label, fillcolor, strokecolor):
+    def add_rect(
+        self, x, y, width, height, label, fillcolor, strokecolor, strokewidth, transform
+    ):
         rect = Rectangle()
         rect.style.set_color(fillcolor if fillcolor else "None", "fill")
         rect.style.set_color(strokecolor if strokecolor else "None", "stroke")
+        rect.style["stroke-width"] = str(f"{strokewidth:.2f}")  # even if no strokecolor
         rect.set("width", str(f"{width}px"))
         rect.set("height", str(f"{height}px"))
         rect.set("x", str(f"{x}px"))
         rect.set("y", str(f"{y}px"))
+        rect.transform = transform
         rect.label = label
         return rect
 
@@ -274,6 +283,7 @@ class BoundingBoxEffect(Effect):
         bbox_info,
         layer,
         position,
+        grow_type,
         grow,
         addfill,
         fillcolor,
@@ -285,12 +295,36 @@ class BoundingBoxEffect(Effect):
         guide_x2 = guide_y2 = float("-inf")
 
         for elem, (x1, y1, x2, y2) in bbox_info:
+            parent = (
+                elem.getparent()
+                if elem is not None and position in {"above_sel", "below_sel"}
+                else layer
+            )
+
+            rect_transform = (
+                (
+                    -parent.composed_transform()
+                    @ elem.getparent().composed_transform()
+                    @ elem.transform
+                )
+                if retain_transform
+                else -parent.composed_transform()
+            )
+
+            tr = rect_transform @ parent.composed_transform()
+            stroke_width = abs(tr.a * tr.d - tr.b * tr.c) ** -0.5
+            scale_x, scale_y = tr.a, tr.d
+
             width = x2 - x1
             height = y2 - y1
 
-            # Adjust bounding box size based on growth
-            width_increase = (width * grow) / 100
-            height_increase = (height * grow) / 100
+            width_increase = (
+                (grow / scale_x) if grow_type == "absolute" else (width * grow) / 100
+            )
+            height_increase = (
+                (grow / scale_y) if grow_type == "absolute" else (height * grow) / 100
+            )
+
             x1 -= width_increase / 2
             y1 -= height_increase / 2
             width += width_increase
@@ -305,28 +339,15 @@ class BoundingBoxEffect(Effect):
                 "Bounding Box",
                 fillcolor if addfill else None,
                 strokecolor if addstroke else None,
+                stroke_width,
+                rect_transform,
             )
             if position == "above_sel" and elem is not None:
-                parent = elem.getparent()
                 elem.addnext(rect)
             elif position == "below_sel" and elem is not None:
-                parent = elem.getparent()
                 elem.addprevious(rect)
             else:
-                parent = layer
                 layer.add(rect)
-            if retain_transform:
-                rect.transform = (
-                    -parent.composed_transform()
-                    @ elem.getparent().composed_transform()
-                    @ elem.transform
-                )
-            else:
-                rect.transform = -parent.composed_transform()
-
-            tr = rect.composed_transform()
-            stroke_width = abs(tr.a * tr.d - tr.b * tr.c) ** -0.5
-            rect.style["stroke-width"] = str(f"{stroke_width:.2f}")
 
             abs_bb = rect.bounding_box(parent.composed_transform())
             if abs_bb:
@@ -345,6 +366,7 @@ class BoundingBoxEffect(Effect):
         fillcolor = self.options.fillcolor
         strokecolor = self.options.strokecolor
         bboxtype = self.options.bboxtype
+        grow_type = self.options.grow_type
         grow = self.options.grow
         retain_transform = self.options.retain_transform and bboxtype not in {
             "page",
@@ -364,6 +386,7 @@ class BoundingBoxEffect(Effect):
             bbox_info,
             layer,
             position,
+            grow_type,
             grow,
             addfill,
             fillcolor,

@@ -33,8 +33,9 @@ After installation, the extension can be accessed from the Inkscape menu under `
   - `Above Selection`
   - `New Layer (Below)`
   - `New Layer (Above)`
-- **Grow / Shrink (%)**: Enter a percentage to grow or shrink the bounding box
-- Retain Transform: Bounding Box inherits the transform of the selection (applicable for element and object bounding boxes)
+- **Resize**: Adjust the size of the bounding box
+- **Resize Type**: If `Absolute` box is extended by as many pixels as `Resize`, otherwise `Resize` is considered to be a percentage value
+- **Retain Transform**: Bounding Box inherits the transform of the selection (applicable for element and object bounding boxes)
 - **Horizontal Guide**: Add a horizontal guide across the middle of the bounding box.
 - **Vertical Guide**: Add a vertical guide across the middle of the bounding box.
 
