@@ -312,9 +312,9 @@ class BoundingBoxEffect(Effect):
             )
 
             tr = rect_transform @ parent.composed_transform()
-            stroke_width = abs(tr.a * tr.d - tr.b * tr.c) ** -0.5
-
             a, b, c, d = tr.a, tr.b, tr.c, tr.d
+            stroke_width = abs(a * d - b * c) ** -0.5
+
             scale_x = (a * a + c * c) ** 0.5
             scale_y = (b * b + d * d) ** 0.5
 
