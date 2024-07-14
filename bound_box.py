@@ -149,7 +149,7 @@ class BoundingBoxEffect(Effect):
     def get_sel_bbox_info(self, elements, retain_transform):
         if not elements:
             return None
-        if any(isinstance(e, TextElement) for e in elements):
+        if any(isinstance(ec, TextElement) for e in elements for ec in e.descendants()):
             bbox_info = self.get_sel_bbox_info_external(elements, retain_transform)
         else:
             if retain_transform:
