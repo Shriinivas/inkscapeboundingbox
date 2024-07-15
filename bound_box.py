@@ -27,6 +27,7 @@ import tempfile, os
 from inkex.command import write_svg
 from inkex import (
     Effect,
+    PathElement,
     command,
     errormsg,
     Color,
@@ -36,6 +37,7 @@ from inkex import (
     Layer,
     Rectangle,
 )
+from inkex.paths import Line, Move, Path
 
 
 class BoundingBoxEffect(Effect):
@@ -53,6 +55,18 @@ class BoundingBoxEffect(Effect):
             type=Boolean,
             default=False,
             help="Create new layer with bounding box",
+        )
+        arg(
+            "--horizgrid",
+            type=int,
+            default=0,
+            help="Horizontal grid line count.",
+        )
+        arg(
+            "--vertgrid",
+            type=int,
+            default=0,
+            help="Vertical grid line count.",
         )
         arg(
             "--horizguide",
@@ -109,6 +123,7 @@ class BoundingBoxEffect(Effect):
         )
         arg("--fillcolor", type=Color, help="Fill color for bounding box")
         arg("--strokecolor", type=Color, help="Stroke color for bounding box")
+        arg("--strokewidth", type=float, help="Stroke width for bounding box")
 
     def get_sel_bbox_info_external(self, elements, retain_transform):
         element_ids = [elem.get_id() for elem in elements]
@@ -207,8 +222,17 @@ class BoundingBoxEffect(Effect):
             )
         return x, y, x + width, y + height
 
+    def add_line(self, x1, y1, x2, y2, strokecolor, strokewidth, transform, label):
+        path_elem = PathElement()
+        path_elem.path = Path([Move(x1, y1), Line(x2, y2)])
+        path_elem.style.set_color(strokecolor, "stroke")
+        path_elem.style["stroke-width"] = str(f"{strokewidth:.2f}")
+        path_elem.transform = transform
+        path_elem.label = label
+        return path_elem
+
     def add_rect(
-        self, x, y, width, height, label, fillcolor, strokecolor, strokewidth, transform
+        self, x, y, width, height, fillcolor, strokecolor, strokewidth, transform, label
     ):
         rect = Rectangle()
         rect.style.set_color(fillcolor if fillcolor else "None", "fill")
@@ -262,21 +286,98 @@ class BoundingBoxEffect(Effect):
     def get_bbox_layer(self, position, ref_elem):
         if position in {"below_layer", "above_layer"}:
             layer = Layer.new("Bounding Box Layer")
-            curr_layer = (
+            pos_ref = (
                 self.get_parent_layer(ref_elem)
                 if ref_elem is not None
                 else self.svg.get_current_layer()
             )
-            if curr_layer is None or curr_layer == self.svg:
-                self.svg.add(layer)
-            elif position == "below_layer":
-                curr_layer.addprevious(layer)
+            if pos_ref is None or pos_ref == self.svg:
+                pos_ref = ref_elem
+            if position == "below_layer":
+                pos_ref.addprevious(layer)
             else:
-                curr_layer.addnext(layer)
+                pos_ref.addnext(layer)
         else:
             layer = self.svg.get_current_layer()
 
         return layer
+
+    def add_rect_and_lines(
+        self,
+        layer,
+        ref_elem,
+        position,
+        x1,
+        y1,
+        width,
+        height,
+        fillcolor,
+        addstroke,
+        strokecolor,
+        strokewidth,
+        rect_transform,
+        horizgrid,
+        vertgrid,
+    ):
+        new_elems = []
+
+        # Draw the bounding box
+        rect = self.add_rect(
+            x1,
+            y1,
+            width,
+            height,
+            fillcolor,
+            strokecolor if addstroke else None,
+            strokewidth,
+            rect_transform,
+            "Bounding Box",
+        )
+        new_elems.append(rect)
+        strokewidth = strokewidth or 1
+
+        vertdist = height / max((horizgrid + 1), 1)
+        for i in range(horizgrid):
+            vertoffset = (i + 1) * vertdist
+            new_elems.append(
+                self.add_line(
+                    x1,
+                    y1 + vertoffset,
+                    x1 + width,
+                    y1 + vertoffset,
+                    strokecolor,
+                    strokewidth,
+                    rect_transform,
+                    "gridline",
+                )
+            )
+        horizdist = width / max((vertgrid + 1), 1)
+        for i in range(vertgrid):
+            horizoffset = (i + 1) * horizdist
+            new_elems.append(
+                self.add_line(
+                    x1 + horizoffset,
+                    y1,
+                    x1 + horizoffset,
+                    y1 + height,
+                    strokecolor,
+                    strokewidth,
+                    rect_transform,
+                    "gridline",
+                )
+            )
+
+        if position == "above_sel" and ref_elem is not None:
+            for new_elem in new_elems:
+                ref_elem.addnext(new_elem)
+        elif position == "below_sel" and ref_elem is not None:
+            for new_elem in new_elems:
+                ref_elem.addprevious(new_elem)
+        else:
+            for new_elem in new_elems:
+                layer.add(new_elem)
+
+        return rect, new_elems
 
     def add_bboxes(
         self,
@@ -285,11 +386,13 @@ class BoundingBoxEffect(Effect):
         position,
         grow_type,
         grow,
-        addfill,
         fillcolor,
         addstroke,
         strokecolor,
+        strokewidth,
         retain_transform,
+        horizgrid,
+        vertgrid,
     ):
         guide_x1 = guide_y1 = float("inf")
         guide_x2 = guide_y2 = float("-inf")
@@ -313,7 +416,7 @@ class BoundingBoxEffect(Effect):
 
             tr = rect_transform @ parent.composed_transform()
             a, b, c, d = tr.a, tr.b, tr.c, tr.d
-            stroke_width = abs(a * d - b * c) ** -0.5
+            strokewidth *= abs(a * d - b * c) ** -0.5
 
             scale_x = (a * a + c * c) ** 0.5
             scale_y = (b * b + d * d) ** 0.5
@@ -333,25 +436,22 @@ class BoundingBoxEffect(Effect):
             width += width_increase
             height += height_increase
 
-            # Draw the bounding box
-            rect = self.add_rect(
+            rect, _ = self.add_rect_and_lines(
+                layer,
+                elem,
+                position,
                 x1,
                 y1,
                 width,
                 height,
-                "Bounding Box",
-                fillcolor if addfill else None,
-                strokecolor if addstroke else None,
-                stroke_width,
+                fillcolor,
+                addstroke,
+                strokecolor,
+                strokewidth,
                 rect_transform,
+                horizgrid,
+                vertgrid,
             )
-            if position == "above_sel" and elem is not None:
-                elem.addnext(rect)
-            elif position == "below_sel" and elem is not None:
-                elem.addprevious(rect)
-            else:
-                layer.add(rect)
-
             abs_bb = rect.bounding_box(parent.composed_transform())
             if abs_bb:
                 guide_x1 = min(guide_x1, abs_bb.left)
@@ -366,11 +466,14 @@ class BoundingBoxEffect(Effect):
         vertguide = self.options.vertguide
         addfill = self.options.addfill
         addstroke = self.options.addstroke
-        fillcolor = self.options.fillcolor
+        fillcolor = self.options.fillcolor if addfill else None
         strokecolor = self.options.strokecolor
+        strokewidth = self.options.strokewidth
         bboxtype = self.options.bboxtype
         grow_type = self.options.grow_type
         grow = self.options.grow
+        horizgrid = self.options.horizgrid
+        vertgrid = self.options.vertgrid
         retain_transform = self.options.retain_transform and bboxtype not in {
             "page",
             "selection",
@@ -391,11 +494,13 @@ class BoundingBoxEffect(Effect):
             position,
             grow_type,
             grow,
-            addfill,
             fillcolor,
             addstroke,
             strokecolor,
+            strokewidth,
             retain_transform,
+            horizgrid,
+            vertgrid,
         )
         # Add Guides
         if vertguide:
