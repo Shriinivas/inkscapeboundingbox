@@ -265,6 +265,7 @@ class BoundingBoxEffect(Effect):
             shape_classes = {
                 inkex.PathElement,
                 inkex.TextElement,
+                inkex.Image,
                 inkex.Rectangle,
                 inkex.Ellipse,
                 inkex.Circle,
